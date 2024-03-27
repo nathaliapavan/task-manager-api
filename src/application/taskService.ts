@@ -24,7 +24,7 @@ export class TaskService implements ITaskService {
   }
 
   async createTask(taskData: TaskCreateRequestBody): Promise<Task> {
-    const task: Task = { ...taskData,id: uuidv4() };
+    const task: Task = { ...taskData, id: uuidv4() };
     return this.taskRepository.createTask(task);
   }
 
