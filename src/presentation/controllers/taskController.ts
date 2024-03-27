@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { TaskService } from '@application/taskService';
+import { ITaskService } from '@application/taskService';
 
 export class TaskController {
-  constructor(private taskService: TaskService) {}
+  constructor(private taskService: ITaskService) {}
 
   async getAllTasks(req: Request, res: Response): Promise<void> {
     try {

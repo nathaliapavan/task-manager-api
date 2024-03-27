@@ -1,5 +1,5 @@
 import { Task } from '@domain/task';
-import { TaskRepository } from '@infrastructure/repositories/taskRepository';
+import { ITaskRepository } from '@infrastructure/repositories/taskRepository';
 import { TaskCreateRequestBody } from '@presentation/types/taskCreateRequestTypes';
 import { TaskUpdateRequestBody } from '@presentation/types/taskUpdateRequestTypes';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,7 +13,7 @@ export interface ITaskService {
 }
 
 export class TaskService implements ITaskService {
-  constructor(private taskRepository: TaskRepository) {}
+  constructor(private taskRepository: ITaskRepository) {}
 
   async getAllTasks(): Promise<Task[]> {
     return this.taskRepository.getAllTasks();
