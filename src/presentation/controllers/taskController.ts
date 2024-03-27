@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { TaskService } from '@application/task/taskService';
+import { TaskService } from '@application/taskService';
 
 export class TaskController {
   constructor(private taskService: TaskService) {}

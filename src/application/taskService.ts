@@ -1,8 +1,8 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Task } from '@domain/task';
 import { TaskRepository } from '@infrastructure/repositories/taskRepository';
 import { TaskCreateRequestBody } from '@presentation/types/taskCreateRequestTypes';
 import { TaskUpdateRequestBody } from '@presentation/types/taskUpdateRequestTypes';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface ITaskService {
   getAllTasks(): Promise<Task[]>;
