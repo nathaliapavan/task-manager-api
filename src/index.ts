@@ -1,5 +1,5 @@
 import express, { type Application } from 'express';
-import Router from '@presentation/routes';
+import Router from './presentation/routes';
 import swaggerUi from 'swagger-ui-express';
 
 const PORT = process.env.PORT || 3000;

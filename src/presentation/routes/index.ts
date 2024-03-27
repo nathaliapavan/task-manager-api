@@ -1,6 +1,6 @@
 import express from 'express';
-import { taskController } from '@infrastructure/ioc/taskIoc';
-import PingController from '@presentation/controllers/pingController';
+import { taskController } from '../../infrastructure/ioc/taskIoc';
+import PingController from '../controllers/pingController';
 
 const router = express.Router();
 

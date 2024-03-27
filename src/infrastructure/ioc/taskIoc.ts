@@ -1,6 +1,7 @@
-import { TaskService } from '@application/task/taskService';
-import { TaskController } from '@presentation/controllers/taskController';
-import { TaskRepository } from '@infrastructure/repositories/taskRepository';
+import { TaskService } from "../../application/taskService";
+import { TaskRepository } from "../../infrastructure/repositories/taskRepository";
+import { TaskController } from "../../presentation/controllers/taskController";
+
 
 const taskRepository = new TaskRepository();
 const taskService = new TaskService(taskRepository);
