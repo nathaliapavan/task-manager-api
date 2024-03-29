@@ -16,7 +16,6 @@ router.get('/users/:id', userController.getUserById.bind(userController));
 router.post('/users', userController.createUser.bind(userController));
 router.put('/users/:id', userController.updateUser.bind(userController));
 router.delete('/users/:id', userController.deleteUser.bind(userController));
-router.post('/users/:userId/tasks/:taskId', userController.assignTaskToUser.bind(userController));
 
 router.get('/ping', async (_req, res) => {
   const controller = new PingController();
