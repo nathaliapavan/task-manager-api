@@ -48,3 +48,11 @@ Certifique-se de ter os seguintes requisitos instalados antes de prosseguir:
    ```
 
 5. Acesse a documentação Swagger em http://localhost:3000/docs
+
+6. Banco de dados
+
+Criar migration com typeorm
+
+```bash
+  npx typeorm migration:create -n src/infrastructure/database/migrations/YourMigrateName
+```
