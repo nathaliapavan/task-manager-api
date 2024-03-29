@@ -1,4 +1,5 @@
 import { IUserService } from '@application/userService';
+import { CustomError } from '../../common/errors/customError';
 import { Request, Response } from 'express';
 
 export class UserController {
@@ -32,7 +33,11 @@ export class UserController {
       const newUser = await this.userService.createUser(req.body);
       res.status(201).json(newUser);
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      if (error instanceof CustomError) {
+        res.status(error.statusCode).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Internal server error' });
+      }
     }
   }
 
@@ -46,7 +51,11 @@ export class UserController {
         res.status(404).json({ error: 'User not found' });
       }
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      if (error instanceof CustomError) {
+        res.status(error.statusCode).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Internal server error' });
+      }
     }
   }
 
@@ -58,21 +67,6 @@ export class UserController {
         res.sendStatus(204);
       } else {
         res.status(404).json({ error: 'User not found' });
-      }
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  }
-
-  async assignTaskToUser(req: Request, res: Response): Promise<void> {
-    try {
-      const userId = req.params.userId;
-      const taskId = req.params.taskId;
-      const user = await this.userService.assignTaskToUser(userId, taskId);
-      if (user) {
-        res.json(user);
-      } else {
-        res.status(404).json({ error: 'User or Task not found' });
       }
     } catch (error: any) {
       res.status(500).json({ error: error.message });

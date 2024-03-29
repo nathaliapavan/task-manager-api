@@ -1,49 +1,38 @@
-import { User } from '@domain/user';
+import { UserEntity } from '../entities/userEntity';
+import { getRepository } from 'typeorm';
 
 export interface IUserRepository {
-  getAllUsers(): Promise<User[]>;
-  getUserById(id: string): Promise<User | null>;
-  createUser(user: User): Promise<User>;
-  updateUser(id: string, user: User): Promise<User | null>;
+  getAllUsers(): Promise<UserEntity[]>;
+  getUserById(id: string): Promise<UserEntity | null>;
+  getUserByEmail(email: string): Promise<UserEntity | null>;
+  createUser(user: UserEntity): Promise<UserEntity[]>;
+  updateUser(user: UserEntity): Promise<UserEntity | null>;
   deleteUser(id: string): Promise<boolean>;
-  assignTaskToUser(userId: string, taskId: string): Promise<User | null>;
 }
 
 export class UserRepository implements IUserRepository {
-  private users: User[] = [];
-
-  async getAllUsers(): Promise<User[]> {
-    return this.users;
+  async getAllUsers(): Promise<UserEntity[]> {
+    return getRepository(UserEntity).find();
   }
 
-  async getUserById(id: string): Promise<User | null> {
-    return this.users.find((user) => user.id === id) || null;
+  async getUserById(id: string): Promise<UserEntity | null> {
+    return getRepository(UserEntity).findOne({ where: { id } });
   }
 
-  async createUser(user: User): Promise<User> {
-    this.users.push(user);
-    return user;
+  async getUserByEmail(email: string): Promise<UserEntity | null> {
+    return getRepository(UserEntity).findOne({ where: { email } });
   }
 
-  async updateUser(id: string, updatedUser: User): Promise<User | null> {
-    const index = this.users.findIndex((user) => user.id === id);
-    if (index !== -1) {
-      this.users[index] = { ...updatedUser, id };
-      return this.users[index];
-    }
-    return null;
+  async updateUser(user: UserEntity): Promise<UserEntity | null> {
+    return getRepository(UserEntity).save(user);
   }
 
   async deleteUser(id: string): Promise<boolean> {
-    const initialLength = this.users.length;
-    this.users = this.users.filter((user) => user.id !== id);
-    return this.users.length < initialLength;
+    const deleted = await getRepository(UserEntity).delete(id);
+    return !!deleted.affected;
   }
 
-  async assignTaskToUser(userId: string, taskId: string): Promise<User | null> {
-    // TODO
-    console.log('userId', userId);
-    console.log('taskId', taskId);
-    return null;
+  async createUser(user: UserEntity): Promise<UserEntity[] | any> {
+    return getRepository(UserEntity).save(user);
   }
 }
