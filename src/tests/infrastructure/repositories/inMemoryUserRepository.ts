@@ -4,8 +4,12 @@ import { UserEntity } from '../../../infrastructure/entities/userEntity';
 export class InMemoryUserRepository implements IUserRepository {
   private users: UserEntity[] = [];
 
-  async getAllUsers(): Promise<UserEntity[]> {
+  async getUsers(): Promise<UserEntity[]> {
     return this.users;
+  }
+
+  async countUsers(): Promise<number> {
+    return this.users.length;
   }
 
   async getUserById(id: string): Promise<UserEntity | null> {

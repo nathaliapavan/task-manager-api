@@ -4,9 +4,15 @@ import { IUserRepository } from '@infrastructure/repositories/userRepository';
 import { UserCreate, UserCreateRequestBody } from '../presentation/types/userCreateRequestTypes';
 import { UserUpdate, UserUpdateRequestBody } from '../presentation/types/userUpdateRequestTypes';
 import { CustomError } from '../common/errors/customError';
+import { UserQuery } from '../presentation/controllers/userController';
+
+export interface UsersData {
+  users: UserEntity[];
+  totalUsers: number;
+}
 
 export interface IUserService {
-  getAllUsers(): Promise<UserEntity[]>;
+  getUsers(params: UserQuery): Promise<UsersData>;
   getUserById(id: string): Promise<UserEntity | null>;
   createUser(user: User): Promise<UserEntity | null>;
   updateUser(id: string, user: UserUpdateRequestBody): Promise<UserEntity | null>;
@@ -16,8 +22,12 @@ export interface IUserService {
 export class UserService implements IUserService {
   constructor(private userRepository: IUserRepository) {}
 
-  async getAllUsers(): Promise<UserEntity[]> {
-    return this.userRepository.getAllUsers();
+  async getUsers(params: UserQuery): Promise<UsersData> {
+    const [users, totalUsers] = await Promise.all([
+      this.userRepository.getUsers(params),
+      this.userRepository.countUsers(params)
+    ]);
+    return { users, totalUsers };
   }
 
   async getUserById(id: string): Promise<UserEntity | null> {

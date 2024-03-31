@@ -13,7 +13,7 @@ describe('UserService', () => {
     userService = new UserService(userRepository);
   });
 
-  describe('getAllUsers', () => {
+  describe('getUsers', () => {
     it('should return all users', async () => {
       const mockUsers = [
         { name: 'User 1', email: 'user1@example.com' },
@@ -22,9 +22,15 @@ describe('UserService', () => {
       for (const user of mockUsers) {
         await userRepository.createUser(user);
       }
-      const result = await userService.getAllUsers();
-      expect(result).toEqual(mockUsers);
-      expect(result.length).toEqual(2);
+      const { users, totalUsers } = await userService.getUsers({
+        page: 1,
+        pageSize: 10,
+        name: undefined,
+        email: undefined,
+        startIndex: 0,
+      });
+      expect(users).toEqual(mockUsers);
+      expect(users.length).toEqual(2);
     });
   });
 
@@ -58,7 +64,7 @@ describe('UserService', () => {
         email: 'john@example.com',
       };
       await userService.createUser(userData);
-      const result = await userRepository.getAllUsers();
+      const result = await userRepository.getUsers();
       expect(result[0]?.name).toEqual(userData.name);
       expect(result[0]?.email).toEqual(userData.email);
     });

@@ -11,7 +11,7 @@ router.post('/tasks', taskController.createTask.bind(taskController));
 router.put('/tasks/:id', taskController.updateTask.bind(taskController));
 router.delete('/tasks/:id', taskController.deleteTask.bind(taskController));
 
-router.get('/users', userController.getAllUsers.bind(userController));
+router.get('/users', userController.getUsers.bind(userController));
 router.get('/users/:id', userController.getUserById.bind(userController));
 router.post('/users', userController.createUser.bind(userController));
 router.put('/users/:id', userController.updateUser.bind(userController));

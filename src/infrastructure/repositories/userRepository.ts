@@ -1,8 +1,10 @@
+import { UserQuery } from '../../presentation/controllers/userController';
 import { UserEntity } from '../entities/userEntity';
 import { getRepository } from 'typeorm';
 
 export interface IUserRepository {
-  getAllUsers(): Promise<UserEntity[]>;
+  getUsers(params: UserQuery): Promise<UserEntity[]>;
+  countUsers(params: UserQuery): Promise<number>;
   getUserById(id: string): Promise<UserEntity | null>;
   getUserByEmail(email: string): Promise<UserEntity | null>;
   createUser(user: UserEntity): Promise<UserEntity | null>;
@@ -11,8 +13,36 @@ export interface IUserRepository {
 }
 
 export class UserRepository implements IUserRepository {
-  async getAllUsers(): Promise<UserEntity[]> {
-    return getRepository(UserEntity).find();
+  async getUsers(params: UserQuery): Promise<UserEntity[]> {
+    const queryBuilder = getRepository(UserEntity).createQueryBuilder('user')
+      .skip(params.startIndex)
+      .take(params.pageSize);
+    
+      if (params.name) {
+        queryBuilder.andWhere('user.name LIKE :name', { name: `%${params.name}%` });
+      }
+  
+      if (params.email) {
+        queryBuilder.andWhere('user.email LIKE :email', { email: `%${params.email}%` });
+      }
+    
+    return queryBuilder.getMany();
+  }
+
+  async countUsers(params: UserQuery): Promise<number> {
+    const queryBuilder = getRepository(UserEntity).createQueryBuilder('user')
+      .skip(params.startIndex)
+      .take(params.pageSize);
+    
+      if (params.name) {
+        queryBuilder.andWhere('user.name LIKE :name', { name: `%${params.name}%` });
+      }
+  
+      if (params.email) {
+        queryBuilder.andWhere('user.email LIKE :email', { email: `%${params.email}%` });
+      }
+    
+    return queryBuilder.getCount();
   }
 
   async getUserById(id: string): Promise<UserEntity | null> {

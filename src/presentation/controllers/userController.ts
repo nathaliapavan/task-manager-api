@@ -2,6 +2,37 @@ import { IUserService } from '@application/userService';
 import { CustomError } from '../../common/errors/customError';
 import { Request, Response } from 'express';
 
+const DEFAULT_PAGE_SIZE = 10;
+const MAX_PAGE_SIZE = 100;
+
+export interface UserQueryOptions {
+  page: number;
+  pageSize: number;
+  name?: string;
+  email?: string;
+}
+
+export class UserQuery {
+  public readonly startIndex: number;
+
+  constructor(
+    public readonly page: number,
+    public readonly pageSize: number,
+    public readonly name?: string,
+    public readonly email?: string,
+  ) {
+    this.startIndex = (page - 1) * pageSize;
+  }
+
+  static fromRequest(req: Request): UserQuery {
+    const page = req.query?.page ? Number(req.query.page) : 1;
+    const pageSize = Math.min(req.query?.pageSize ? Number(req.query.pageSize) : DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
+    const name = req.query?.name ? String(req.query.name) : undefined;
+    const email = req.query?.email ? String(req.query.email) : undefined;
+    return new UserQuery(page, pageSize, name, email);
+  }
+}
+
 export class UserController {
   constructor(private userService: IUserService) {}
 
@@ -9,12 +40,26 @@ export class UserController {
    * @swagger
    * /users:
    *   get:
-   *     summary: Get all users
+   *     summary: Get users
    */
-  async getAllUsers(req: Request, res: Response): Promise<void> {
+  async getUsers(req: Request, res: Response): Promise<void> {
     try {
-      const users = await this.userService.getAllUsers();
-      res.json(users);
+      const params = UserQuery.fromRequest(req);
+      const { users, totalUsers } = await this.userService.getUsers(params);
+      const totalPages = Math.ceil(totalUsers / params.pageSize) || 0;
+      const nextPage = params.page < totalPages ? params.page + 1 : null;
+      const prevPage = params.page > 1 ? params.page - 1 : null;
+      res.json({
+        data: users || [],
+        pagination: {
+          page: params.page,
+          pageSize: params.pageSize,
+          totalUsers: totalUsers || 0,
+          totalPages: totalPages,
+          nextPage,
+          prevPage,
+        },
+      });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

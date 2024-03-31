@@ -30,7 +30,7 @@ describe('UserController', () => {
     jest.clearAllMocks();
   });
 
-  describe('getAllUsers', () => {
+  describe('getUsers', () => {
     it('should return all users', async () => {
       const userData = {
         name: 'John Doe',
@@ -38,20 +38,29 @@ describe('UserController', () => {
       };
       const newUser = UserEntity.createUser(new UserCreate(userData));
       await userRepository.createUser(newUser);
-      userService.getAllUsers = jest.fn().mockResolvedValue(await userRepository.getAllUsers());
-      await userController.getAllUsers(req as Request, res as Response);
-      expect(res.json).toHaveBeenCalledWith(expect.arrayContaining([expect.objectContaining(userData)]));
+      userService.getUsers = jest.fn().mockResolvedValue({
+        users: await userRepository.getUsers(),
+        totalUsers: await userRepository.countUsers()
+      });
+      await userController.getUsers(req as Request, res as Response);
+      expect(res.json).toHaveBeenCalledWith({
+        data: [newUser],
+        pagination: { nextPage: null, page: 1, pageSize: 10, prevPage: null, totalPages: 1, totalUsers: 1 },
+      });
     });
 
     it('should return empty users', async () => {
-      userService.getAllUsers = jest.fn().mockResolvedValue([]);
-      await userController.getAllUsers(req as Request, res as Response);
-      expect(res.json).toHaveBeenCalledWith([]);
+      userService.getUsers = jest.fn().mockResolvedValue([]);
+      await userController.getUsers(req as Request, res as Response);
+      expect(res.json).toHaveBeenCalledWith({
+        data: [],
+        pagination: { nextPage: null, page: 1, pageSize: 10, prevPage: null, totalPages: 0, totalUsers: 0 },
+      });
     });
 
     it('should handle errors by returning status 500', async () => {
-      userService.getAllUsers = jest.fn().mockRejectedValue(new Error('Test error'));
-      await userController.getAllUsers(req as Request, res as Response);
+      userService.getUsers = jest.fn().mockRejectedValue(new Error('Test error'));
+      await userController.getUsers(req as Request, res as Response);
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: 'Test error' });
     });
