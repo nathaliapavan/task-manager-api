@@ -8,7 +8,7 @@ import { CustomError } from '../common/errors/customError';
 export interface IUserService {
   getAllUsers(): Promise<UserEntity[]>;
   getUserById(id: string): Promise<UserEntity | null>;
-  createUser(user: User): Promise<UserEntity[]>;
+  createUser(user: User): Promise<UserEntity | null>;
   updateUser(id: string, user: UserUpdateRequestBody): Promise<UserEntity | null>;
   deleteUser(id: string): Promise<boolean>;
 }
@@ -24,7 +24,7 @@ export class UserService implements IUserService {
     return this.userRepository.getUserById(id);
   }
 
-  async createUser(userData: UserCreateRequestBody): Promise<UserEntity[]> {
+  async createUser(userData: UserCreateRequestBody): Promise<UserEntity | null> {
     const userCreate = new UserCreate(userData);
     const existingUser = await this.userRepository.getUserByEmail(userCreate.data.email);
     if (existingUser) {

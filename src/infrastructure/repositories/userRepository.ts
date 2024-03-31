@@ -5,7 +5,7 @@ export interface IUserRepository {
   getAllUsers(): Promise<UserEntity[]>;
   getUserById(id: string): Promise<UserEntity | null>;
   getUserByEmail(email: string): Promise<UserEntity | null>;
-  createUser(user: UserEntity): Promise<UserEntity[]>;
+  createUser(user: UserEntity): Promise<UserEntity | null>;
   updateUser(user: UserEntity): Promise<UserEntity | null>;
   deleteUser(id: string): Promise<boolean>;
 }
@@ -32,7 +32,7 @@ export class UserRepository implements IUserRepository {
     return !!deleted.affected;
   }
 
-  async createUser(user: UserEntity): Promise<UserEntity[] | any> {
+  async createUser(user: UserEntity): Promise<UserEntity | any> {
     return getRepository(UserEntity).save(user);
   }
 }
