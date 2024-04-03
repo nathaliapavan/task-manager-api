@@ -14,34 +14,36 @@ export interface IUserRepository {
 
 export class UserRepository implements IUserRepository {
   async getUsers(params: UserQuery): Promise<UserEntity[]> {
-    const queryBuilder = getRepository(UserEntity).createQueryBuilder('user')
+    const queryBuilder = getRepository(UserEntity)
+      .createQueryBuilder('user')
       .skip(params.startIndex)
       .take(params.pageSize);
-    
-      if (params.name) {
-        queryBuilder.andWhere('user.name LIKE :name', { name: `%${params.name}%` });
-      }
-  
-      if (params.email) {
-        queryBuilder.andWhere('user.email LIKE :email', { email: `%${params.email}%` });
-      }
-    
+
+    if (params.name) {
+      queryBuilder.andWhere('user.name LIKE :name', { name: `%${params.name}%` });
+    }
+
+    if (params.email) {
+      queryBuilder.andWhere('user.email LIKE :email', { email: `%${params.email}%` });
+    }
+
     return queryBuilder.getMany();
   }
 
   async countUsers(params: UserQuery): Promise<number> {
-    const queryBuilder = getRepository(UserEntity).createQueryBuilder('user')
+    const queryBuilder = getRepository(UserEntity)
+      .createQueryBuilder('user')
       .skip(params.startIndex)
       .take(params.pageSize);
-    
-      if (params.name) {
-        queryBuilder.andWhere('user.name LIKE :name', { name: `%${params.name}%` });
-      }
-  
-      if (params.email) {
-        queryBuilder.andWhere('user.email LIKE :email', { email: `%${params.email}%` });
-      }
-    
+
+    if (params.name) {
+      queryBuilder.andWhere('user.name LIKE :name', { name: `%${params.name}%` });
+    }
+
+    if (params.email) {
+      queryBuilder.andWhere('user.email LIKE :email', { email: `%${params.email}%` });
+    }
+
     return queryBuilder.getCount();
   }
 

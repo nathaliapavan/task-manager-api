@@ -40,7 +40,7 @@ describe('UserController', () => {
       await userRepository.createUser(newUser);
       userService.getUsers = jest.fn().mockResolvedValue({
         users: await userRepository.getUsers(),
-        totalUsers: await userRepository.countUsers()
+        totalUsers: await userRepository.countUsers(),
       });
       await userController.getUsers(req as Request, res as Response);
       expect(res.json).toHaveBeenCalledWith({

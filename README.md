@@ -54,5 +54,5 @@ Certifique-se de ter os seguintes requisitos instalados antes de prosseguir:
 Criar migration com typeorm
 
 ```bash
-  npx typeorm migration:create -n src/infrastructure/database/migrations/YourMigrateName
+  npx typeorm migration:create src/infrastructure/database/migrations/YourMigrateName
 ```
