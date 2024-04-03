@@ -29,7 +29,8 @@ export class TaskController {
 
   async createTask(req: Request, res: Response): Promise<void> {
     try {
-      const newTask = await this.taskService.createTask(req.body);
+      const requestUserId = (req as any).requestUserId;
+      const newTask = await this.taskService.createTask(requestUserId, req.body);
       res.status(201).json(newTask);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -52,8 +53,9 @@ export class TaskController {
 
   async deleteTask(req: Request, res: Response): Promise<void> {
     try {
+      const requestUserId = (req as any).requestUserId;
       const taskId = req.params.id;
-      const deleted = await this.taskService.deleteTask(taskId);
+      const deleted = await this.taskService.deleteTask(requestUserId, taskId);
       if (deleted) {
         res.sendStatus(204);
       } else {
