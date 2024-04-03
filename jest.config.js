@@ -5,10 +5,9 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coveragePathIgnorePatterns: [
-    "/src/infrastructure/database",
-    "/src/infrastructure/ioc",
-    "/src/infrastructure/swagger"
+    '/src/infrastructure/database',
+    '/src/infrastructure/ioc',
+    '/src/infrastructure/swagger',
   ],
   collectCoverageFrom: ['src/**/*.{ts,tsx,js,jsx}', '!src/**/*.d.ts'],
-  
 };

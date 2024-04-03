@@ -3,11 +3,13 @@ import Router from './presentation/routes';
 import swaggerUi from 'swagger-ui-express';
 import { connectDatabase } from './infrastructure/database/config';
 import swaggerSpec from './infrastructure/swagger/swagger';
+import cors from 'cors';
 
 const PORT = process.env.PORT || 3000;
 const app: Application = express();
 
 app.use(express.json());
+app.use(cors());
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
