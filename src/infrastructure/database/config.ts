@@ -1,3 +1,4 @@
+import { TaskEntity } from '../entities/taskEntity';
 import { UserEntity } from '../entities/userEntity';
 import { ConnectionOptions, createConnection } from 'typeorm';
 
@@ -11,7 +12,7 @@ const connectionOptions: ConnectionOptions = {
   database: process.env.DATABASE_NAME || 'my_database',
   synchronize: false,
   logging: true,
-  entities: [UserEntity],
+  entities: [UserEntity, TaskEntity],
   migrations: [`${__dirname}/migrations/*.{js,ts}`],
 };
 
