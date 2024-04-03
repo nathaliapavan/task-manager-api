@@ -42,19 +42,15 @@ export class TaskService implements ITaskService {
   }
 
   async updateTask(id: string, taskData: TaskUpdateRequestBody): Promise<TaskEntity | null> {
-    console.log('taskData', taskData)
     const taskCreate = new TaskUpdate(taskData);
-    console.log('taskCreate', taskCreate)
     const existingTask = await this.taskRepository.getTaskById(id);
     if (!existingTask) {
       throw new CustomError('Tarefa nao existe', 404);
     }
     const task = TaskEntity.updateTask(existingTask, taskCreate);
-
     if (!task.assignedToId && task.status !== 'pending') {
       throw new CustomError('Voce nao pode trocar o status sem associar essa tarefa', 404);
     }
-    console.log('task', task)
     return this.taskRepository.updateTask(task);
   }
 
