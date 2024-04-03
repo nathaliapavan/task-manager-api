@@ -1,7 +1,9 @@
 import { UserCreate } from '@presentation/types/userCreateRequestTypes';
 import { UserUpdate } from '@presentation/types/userUpdateRequestTypes';
-import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate, OneToMany } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { TaskEntity } from './taskEntity';
+import { generateRandomPassword } from '../../common/helpers/passwordHelper';
 
 @Entity('users')
 export class UserEntity {
@@ -14,27 +16,34 @@ export class UserEntity {
   @Column({ type: 'varchar' })
   email: string | undefined;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date = new Date();
+  @Column({ type: 'varchar' })
+  password: string | undefined;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
-  updated_at: Date = new Date();
+  @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date = new Date();
+
+  @Column({ name: 'updated_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  updatedAt: Date = new Date();
 
   @BeforeInsert()
   private setCreatedAt() {
-    this.created_at = new Date();
+    this.createdAt = new Date();
   }
 
   @BeforeUpdate()
   private setUpdatedAt() {
-    this.updated_at = new Date();
+    this.updatedAt = new Date();
   }
+
+  // @OneToMany(() => TaskEntity, (task) => task.assignedTo)
+  // tasks: TaskEntity[] | undefined;
 
   static createUser(userToCreate: UserCreate): UserEntity {
     const user = new UserEntity();
     user.id = uuidv4();
     user.name = userToCreate.data.name;
     user.email = userToCreate.data.email;
+    user.password = generateRandomPassword();
     user.setCreatedAt();
     user.setUpdatedAt();
     return user;
@@ -45,7 +54,7 @@ export class UserEntity {
     updatedUser.id = existingUser.id;
     updatedUser.name = userToUpdate.data.name;
     updatedUser.email = existingUser.email;
-    updatedUser.created_at = existingUser.created_at;
+    updatedUser.createdAt = existingUser.createdAt;
     updatedUser.setUpdatedAt();
     return updatedUser;
   }
