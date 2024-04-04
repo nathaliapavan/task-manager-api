@@ -16,6 +16,7 @@ export class UserRepository implements IUserRepository {
   async getUsers(params: UserQuery): Promise<UserEntity[]> {
     const queryBuilder = getRepository(UserEntity)
       .createQueryBuilder('user')
+      .select(['user.id', 'user.name', 'user.email', 'user.createdAt', 'user.updatedAt'])
       .skip(params.startIndex)
       .take(params.pageSize);
 
@@ -48,11 +49,16 @@ export class UserRepository implements IUserRepository {
   }
 
   async getUserById(id: string): Promise<UserEntity | null> {
-    return getRepository(UserEntity).findOne({ where: { id } });
+    return getRepository(UserEntity).findOne({
+      select: ['id', 'name', 'email', 'createdAt', 'updatedAt'],
+      where: { id },
+    });
   }
 
   async getUserByEmail(email: string): Promise<UserEntity | null> {
-    return getRepository(UserEntity).findOne({ where: { email } });
+    return getRepository(UserEntity).findOne({
+      where: { email },
+    });
   }
 
   async updateUser(user: UserEntity): Promise<UserEntity | null> {
