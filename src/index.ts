@@ -4,6 +4,7 @@ import swaggerUi from 'swagger-ui-express';
 import { connectDatabase } from './infrastructure/database/config';
 import swaggerSpec from './infrastructure/swagger/swagger';
 import cors from 'cors';
+import { logIncomingRequest, logOutgoingResponse } from './infrastructure/middleware/loggingMiddleware';
 
 const PORT = process.env.PORT || 3000;
 const app: Application = express();
@@ -12,6 +13,9 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.use(logIncomingRequest);
+app.use(logOutgoingResponse);
 
 const startServer = async () => {
   try {
