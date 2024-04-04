@@ -7,7 +7,7 @@ export function logIncomingRequest(req: Request, res: Response, next: NextFuncti
   const token = authHeader && authHeader.split(' ')[1];
   const userId = token ? getUserIdFromToken(token) : 'N/A';
   console.info(
-    `INCOMING_REQUEST [${req.method}] ${req.originalUrl} UserID: ${userId} QueryParams: ${JSON.stringify(req.query)} Params: ${JSON.stringify(req.params)} Body: ${JSON.stringify(req.body)}`,
+    `INCOMING_REQUEST [${req.method}] ${req.originalUrl} UserID: ${userId} QueryParams: ${JSON.stringify(req.query)} Params: ${JSON.stringify(req.params)} Body: ${JSON.stringify(hideSensitiveData(req.body))}`,
   );
   res.locals.userId = userId;
   next();
