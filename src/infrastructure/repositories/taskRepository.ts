@@ -1,3 +1,4 @@
+import { UserEntity } from '../../infrastructure/entities/userEntity';
 import { TaskQuery } from '../../presentation/controllers/taskController';
 import { TaskEntity } from '../entities/taskEntity';
 import { getRepository } from 'typeorm';

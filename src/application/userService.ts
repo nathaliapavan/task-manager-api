@@ -5,6 +5,7 @@ import { UserCreate, UserCreateRequestBody } from '../presentation/types/userCre
 import { UserUpdate, UserUpdateRequestBody } from '../presentation/types/userUpdateRequestTypes';
 import { CustomError } from '../common/errors/customError';
 import { UserQuery } from '../presentation/controllers/userController';
+import { NotifyObserver } from '../infrastructure/notification/emailNotificationService';
 
 export interface UsersData {
   users: UserEntity[];
@@ -20,18 +21,30 @@ export interface IUserService {
 }
 
 export class UserService implements IUserService {
+  private notifyObserver: NotifyObserver[] = [];
+
   constructor(private userRepository: IUserRepository) {}
+
+  addObserver(observer: NotifyObserver) {
+    this.notifyObserver.push(observer);
+  }
+
+  private async notifyObservers(data: any) {
+    await Promise.all(this.notifyObserver.map((observer) => observer.verifyEmailNotification(data)));
+  }
 
   async getUsers(params: UserQuery): Promise<UsersData> {
     const [users, totalUsers] = await Promise.all([
       this.userRepository.getUsers(params),
-      this.userRepository.countUsers(params)
+      this.userRepository.countUsers(params),
     ]);
     return { users, totalUsers };
   }
 
   async getUserById(id: string): Promise<UserEntity | null> {
-    return this.userRepository.getUserById(id);
+    const user = await this.userRepository.getUserById(id);
+    delete user?.password;
+    return user;
   }
 
   async createUser(userData: UserCreateRequestBody): Promise<UserEntity | null> {
@@ -42,7 +55,10 @@ export class UserService implements IUserService {
       throw new CustomError('An error occurred while processing your request', 500);
     }
     const user = UserEntity.createUser(new UserCreate(userData));
-    return this.userRepository.createUser(user);
+    const createdUser = await this.userRepository.createUser(user);
+    if (createdUser) this.notifyObservers(createdUser);
+    delete createdUser?.password;
+    return createdUser;
   }
 
   async updateUser(id: string, userData: UserUpdateRequestBody): Promise<UserEntity | null> {
@@ -50,7 +66,9 @@ export class UserService implements IUserService {
     if (!existingUser) return null;
     const userUpdate = new UserUpdate(userData);
     const user = UserEntity.updateUser(existingUser, userUpdate);
-    return this.userRepository.updateUser(user);
+    const updatedUser = await this.userRepository.updateUser(user);
+    delete updatedUser?.password;
+    return updatedUser;
   }
 
   async deleteUser(id: string): Promise<boolean> {

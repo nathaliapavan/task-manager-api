@@ -4,6 +4,7 @@ export interface TaskUpdateRequestBody {
   title?: string;
   description?: string;
   assignedToId?: string | undefined;
+  createdById?: string | undefined;
   status?: string | null;
 }
 
@@ -11,6 +12,7 @@ export class TaskUpdate {
   title?: string | null;
   description?: string | null;
   assignedToId?: string | undefined;
+  createdById?: string | undefined;
   status?: string | null;
 
   constructor(public data: TaskUpdateRequestBody) {
@@ -24,6 +26,10 @@ export class TaskUpdate {
 
     if (data.assignedToId) {
       this.assignedToId = data.assignedToId;
+    }
+
+    if (data.createdById) {
+      this.createdById = data.createdById;
     }
 
     if (data.status) {
