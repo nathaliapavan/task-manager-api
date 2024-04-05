@@ -27,7 +27,6 @@ export class InMemoryTaskRepository implements ITaskRepository {
 
   async deleteTask(id: string): Promise<boolean> {
     const initialLength = this.tasks.length;
-    console.log(id, this.tasks);
     this.tasks = this.tasks.filter((task) => task.id !== id);
     return this.tasks.length !== initialLength;
   }
