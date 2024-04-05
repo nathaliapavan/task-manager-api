@@ -35,8 +35,8 @@ export class EmailNotificationService implements NotifyUserObserver {
 
   private async sendNotification(notificationData: any): Promise<void> {
     try {
-      const lambdaResponse = await this.snsService.send('', notificationData);
-      console.log('Success in sending notification:', lambdaResponse);
+      await this.snsService.send(notificationData);
+      console.log('Success in sending notification');
     } catch (error) {
       throw new Error(`Error sending notification: ${error}`);
     }

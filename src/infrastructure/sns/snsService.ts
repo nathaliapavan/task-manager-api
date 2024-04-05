@@ -1,11 +1,11 @@
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 
 interface ISNSService {
-  send(url: string, message: any): Promise<any>;
+  send(message: any): Promise<any>;
 }
 
 export class SNSService implements ISNSService {
-  async send(url: string, message?: any): Promise<any> {
+  async send(message: any): Promise<any> {
     const snsClient = new SNSClient({
       region: process.env.SNS_REGION || '',
       credentials: {
