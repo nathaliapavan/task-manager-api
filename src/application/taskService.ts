@@ -5,6 +5,7 @@ import { TaskCreate, TaskCreateRequestBody } from '../presentation/types/taskCre
 import { CustomError } from '../common/errors/customError';
 import { TaskUpdate, TaskUpdateRequestBody } from '../presentation/types/taskUpdateRequestTypes';
 import { TaskQuery } from '../presentation/controllers/taskController';
+import { NotifyObserver } from '../infrastructure/notification/emailNotificationService';
 
 export interface TasksData {
   tasks: TaskEntity[];
@@ -20,10 +21,20 @@ export interface ITaskService {
 }
 
 export class TaskService implements ITaskService {
+  private notifyObserver: NotifyObserver[] = [];
+
   constructor(
     private taskRepository: ITaskRepository,
     private userRepository: IUserRepository,
   ) {}
+
+  addObserver(observer: NotifyObserver) {
+    this.notifyObserver.push(observer);
+  }
+
+  private async notifyObservers(data: any) {
+    await Promise.all(this.notifyObserver.map((observer) => observer.changeTaskNotification(data)));
+  }
 
   async getTasks(params: TaskQuery): Promise<TasksData> {
     const [tasks, totalTasks] = await Promise.all([
@@ -47,7 +58,14 @@ export class TaskService implements ITaskService {
       }
     }
     const task = TaskEntity.createTask(userId, taskCreate);
-    return this.taskRepository.createTask(task);
+    const createdTask = await this.taskRepository.createTask(task);
+    if (createdTask?.assignedToId)
+      this.notifyObservers({
+        action: 'create',
+        task: createdTask,
+        emailsAssociatedUsers: await this.getEmailsOfAssociatedUsers(createdTask),
+      });
+    return createdTask;
   }
 
   async updateTask(id: string, taskData: TaskUpdateRequestBody): Promise<TaskEntity | null> {
@@ -60,10 +78,35 @@ export class TaskService implements ITaskService {
     if (!task.assignedToId && task.status !== 'pending') {
       throw new CustomError('You cannot change the status without associating this task', 400);
     }
-    return this.taskRepository.updateTask(task);
+    const updatedTask = await this.taskRepository.updateTask(task);
+    this.notifyObservers({
+      action: 'update',
+      task: task,
+      emailsAssociatedUsers: await this.getEmailsOfAssociatedUsers(task),
+    });
+    return updatedTask;
   }
 
   async deleteTask(taskId: string): Promise<boolean> {
-    return this.taskRepository.deleteTask(taskId);
+    const existingTask = await this.taskRepository.getTaskById(taskId);
+    if (!existingTask) {
+      throw new CustomError('Task not found', 404);
+    }
+    const deletedTask = await this.taskRepository.deleteTask(taskId);
+    this.notifyObservers({
+      action: 'delete',
+      task: existingTask,
+      emailsAssociatedUsers: await this.getEmailsOfAssociatedUsers(existingTask),
+    });
+    return deletedTask;
+  }
+
+  async getEmailsOfAssociatedUsers(task: TaskEntity): Promise<{ assignedToEmail: string; createdByEmail: string }> {
+    const assignedToUser = await this.userRepository.getUserById(task?.assignedToId || '');
+    const createdByUser = await this.userRepository.getUserById(task?.createdById || '');
+    return {
+      assignedToEmail: assignedToUser?.email || '',
+      createdByEmail: createdByUser?.email || '',
+    };
   }
 }

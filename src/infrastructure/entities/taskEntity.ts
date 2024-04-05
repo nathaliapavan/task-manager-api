@@ -79,6 +79,8 @@ export class TaskEntity {
     updatedTask.createdAt = existingTask.createdAt;
     updatedTask.assignedToId =
       taskToUpdate.data.assignedToId !== undefined ? taskToUpdate.data.assignedToId : existingTask.assignedToId;
+    updatedTask.createdById =
+      taskToUpdate.data.createdById !== undefined ? taskToUpdate.data.createdById : existingTask.createdById;
     updatedTask.setUpdatedAt();
     return updatedTask;
   }

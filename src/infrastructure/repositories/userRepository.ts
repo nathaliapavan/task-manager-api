@@ -73,4 +73,11 @@ export class UserRepository implements IUserRepository {
   async createUser(user: UserEntity): Promise<UserEntity | any> {
     return getRepository(UserEntity).save(user);
   }
+
+  async getEmailById(id: string): Promise<UserEntity | null> {
+    return getRepository(UserEntity).findOne({
+      select: ['email'],
+      where: { id },
+    });
+  }
 }

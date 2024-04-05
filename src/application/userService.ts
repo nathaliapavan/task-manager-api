@@ -5,7 +5,7 @@ import { UserCreate, UserCreateRequestBody } from '../presentation/types/userCre
 import { UserUpdate, UserUpdateRequestBody } from '../presentation/types/userUpdateRequestTypes';
 import { CustomError } from '../common/errors/customError';
 import { UserQuery } from '../presentation/controllers/userController';
-import { NotifyUserObserver } from '../infrastructure/notification/emailNotificationService';
+import { NotifyObserver } from '../infrastructure/notification/emailNotificationService';
 
 export interface UsersData {
   users: UserEntity[];
@@ -21,16 +21,16 @@ export interface IUserService {
 }
 
 export class UserService implements IUserService {
-  private userCreatedObservers: NotifyUserObserver[] = [];
+  private notifyObserver: NotifyObserver[] = [];
 
   constructor(private userRepository: IUserRepository) {}
 
-  addObserver(observer: NotifyUserObserver) {
-    this.userCreatedObservers.push(observer);
+  addObserver(observer: NotifyObserver) {
+    this.notifyObserver.push(observer);
   }
 
   private async notifyObservers(data: any) {
-    await Promise.all(this.userCreatedObservers.map((observer) => observer.sendEmailConfirmation(data)));
+    await Promise.all(this.notifyObserver.map((observer) => observer.verifyEmailNotification(data)));
   }
 
   async getUsers(params: UserQuery): Promise<UsersData> {
@@ -59,8 +59,6 @@ export class UserService implements IUserService {
     if (createdUser) this.notifyObservers(createdUser);
     delete createdUser?.password;
     return createdUser;
-
-   
   }
 
   async updateUser(id: string, userData: UserUpdateRequestBody): Promise<UserEntity | null> {
