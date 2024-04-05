@@ -1,13 +1,52 @@
 import { Request, Response } from 'express';
 import { ITaskService } from '@application/taskService';
 
+const DEFAULT_PAGE_SIZE = 10;
+const MAX_PAGE_SIZE = 100;
+
+export interface TaskQueryOptions {
+  page: number;
+  pageSize: number;
+}
+
+export class TaskQuery {
+  public readonly startIndex: number;
+
+  constructor(
+    public readonly page: number,
+    public readonly pageSize: number,
+  ) {
+    this.startIndex = (page - 1) * pageSize;
+  }
+
+  static fromRequest(req: Request): TaskQuery {
+    const page = req.query?.page ? Number(req.query.page) : 1;
+    const pageSize = Math.min(req.query?.pageSize ? Number(req.query.pageSize) : DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
+    return new TaskQuery(page, pageSize);
+  }
+}
+
 export class TaskController {
   constructor(private taskService: ITaskService) {}
 
-  async getAllTasks(req: Request, res: Response): Promise<void> {
+  async getTasks(req: Request, res: Response): Promise<void> {
     try {
-      const tasks = await this.taskService.getAllTasks();
-      res.json(tasks);
+      const params = TaskQuery.fromRequest(req);
+      const { tasks, totalTasks } = await this.taskService.getTasks(params);
+      const totalPages = Math.ceil(totalTasks / params.pageSize) || 0;
+      const nextPage = params.page < totalPages ? params.page + 1 : null;
+      const prevPage = params.page > 1 ? params.page - 1 : null;
+      res.json({
+        data: tasks || [],
+        pagination: {
+          page: params.page,
+          pageSize: params.pageSize,
+          totalUsers: totalTasks || 0,
+          totalPages: totalPages,
+          nextPage,
+          prevPage,
+        },
+      });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -53,9 +92,8 @@ export class TaskController {
 
   async deleteTask(req: Request, res: Response): Promise<void> {
     try {
-      const requestUserId = (req as any).requestUserId;
       const taskId = req.params.id;
-      const deleted = await this.taskService.deleteTask(requestUserId, taskId);
+      const deleted = await this.taskService.deleteTask(taskId);
       if (deleted) {
         res.sendStatus(204);
       } else {

@@ -1,8 +1,10 @@
+import { TaskQuery } from '../../presentation/controllers/taskController';
 import { TaskEntity } from '../entities/taskEntity';
 import { getRepository } from 'typeorm';
 
 export interface ITaskRepository {
-  getAllTasks(): Promise<TaskEntity[]>;
+  getTasks(params: TaskQuery): Promise<TaskEntity[]>;
+  countTasks(params: TaskQuery): Promise<number>;
   getTaskById(id: string): Promise<TaskEntity | null>;
   createTask(task: TaskEntity): Promise<TaskEntity>;
   updateTask(task: TaskEntity): Promise<TaskEntity | null>;
@@ -10,8 +12,16 @@ export interface ITaskRepository {
 }
 
 export class TaskRepository implements ITaskRepository {
-  async getAllTasks(): Promise<TaskEntity[]> {
-    return getRepository(TaskEntity).find();
+  async getTasks(params: TaskQuery): Promise<TaskEntity[]> {
+    return getRepository(TaskEntity).createQueryBuilder('task').skip(params.startIndex).take(params.pageSize).getMany();
+  }
+
+  async countTasks(params: TaskQuery): Promise<number> {
+    return getRepository(TaskEntity)
+      .createQueryBuilder('task')
+      .skip(params.startIndex)
+      .take(params.pageSize)
+      .getCount();
   }
 
   async getTaskById(id: string): Promise<TaskEntity | null> {
